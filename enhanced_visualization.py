@@ -8,7 +8,34 @@ def загрузить_данные_моделирования():
     """Загрузить данные моделирования из файла результатов"""
     if os.path.exists('результаты_моделирования.json'):
         with open('результаты_моделирования.json', 'r', encoding='utf-8') as f:
-            return json.load(f)
+            data = json.load(f)
+        
+        # Создать данные о событиях из arrival_times, served_times, dropout_times
+        события = []
+        сценарии = data.get('сценарии', [])
+        
+        for i in range(len(сценарии)):
+            arrival_times = data.get('arrival_times', [[] for _ in сценарии])[i]
+            served_times = data.get('served_times', [[] for _ in сценарии])[i]
+            dropout_times = data.get('dropout_times', [[] for _ in сценарии])[i]
+            
+            events_for_scenario = []
+            # Добавить события прибытия (ограничим количество для визуализации)
+            for time in arrival_times[:1000]:  # Берем только первые 1000 событий
+                events_for_scenario.append([time, 'прибыл'])
+            # Добавить события обслуживания
+            for time in served_times[:1000]:
+                events_for_scenario.append([time, 'обслужен'])
+            # Добавить события отказов
+            for time in dropout_times[:1000]:
+                events_for_scenario.append([time, 'отказался'])
+            
+            # Отсортировать события по времени
+            events_for_scenario.sort(key=lambda x: x[0])
+            события.append(events_for_scenario)
+        
+        data['события'] = события
+        return data
     else:
         # Если файл не существует, использовать тестовые данные
         print("Файл результатов моделирования не найден. Используются тестовые данные.")
@@ -78,7 +105,7 @@ else:
     else:
         улучшения_удовлетворенности = [0] * len(клиенты_отказались)
 
-def создать_расширенную_визуализацию():
+def создать_расширенную_визуализацию(время_моделирования=480):
     """Создать расширенную визуализацию результатов имитации"""
 
     # Создать фигуру с подграфиками с улучшенным размером и интервалами
@@ -180,7 +207,7 @@ def создать_расширенную_визуализацию():
     axes[3, 1].axis('off')
 
     # Настроить расположение
-    plt.tight_layout(rect=[0, 0, 1, 0.96]) # Скорректировать, чтобы заголовок не накладывался
+    plt.tight_layout(rect=(0, 0, 1, 0.96)) # Скорректировать, чтобы заголовок не накладывался
     plt.savefig('результаты_имитации_русский.png', dpi=300, bbox_inches='tight')
     plt.show()
 
@@ -211,15 +238,23 @@ def создать_визуализацию_бизнес_кейса():
     formula_text = f"Расчет (консервативный):\n" \
                    f"({total_investment:,} руб. / {conservative_savings:,} руб./год) * 12 мес. = {payback_months:.1f} мес.".replace(',', ' ')
 
+    # Аннотация для консервативного сценария - указываем на столбец "Экономия в год"
     ax.annotate(formula_text,
-                xy=(1, 350000), xytext=(0, 450000),
-                arrowprops=dict(facecolor='black', shrink=0.05),
-                horizontalalignment='center', verticalalignment='top',
-                bbox=dict(boxstyle="round,pad=0.5", fc="yellow", ec="black", lw=1))
+                xy=(2, conservative_savings),  # Точка на столбце "Экономия в год"
+                xytext=(0.5, 600000),  # Позиция текста слева от графика
+                arrowprops=dict(arrowstyle='->', color='black'),
+                horizontalalignment='center', verticalalignment='center',
+                bbox=dict(boxstyle="round,pad=0.5", fc="lightyellow", ec="black", lw=1),
+                fontsize=9)
 
+    # Аннотация для оптимистичного сценария - указываем на столбец "Доп. эффект"
+    optimistic_savings = 460000
     ax.annotate('Окупаемость: 4-6 месяцев\n(оптимистичный сценарий)',
-                xy=(2.5, 230000), xytext=(3.5, 400000),
-                arrowprops=dict(arrowstyle='->'), fontsize=10, ha='center')
+                xy=(3, optimistic_savings),  # Точка на столбце "Доп. эффект"
+                xytext=(3.5, 600000),  # Позиция текста справа от графика
+                arrowprops=dict(arrowstyle='->', color='black'),
+                fontsize=10, ha='center', va='center',
+                bbox=dict(boxstyle="round,pad=0.5", fc="lightblue", ec="black", lw=1))
 
     plt.tight_layout()
     plt.savefig('бизнес_кейс_русский.png', dpi=300, bbox_inches='tight')
