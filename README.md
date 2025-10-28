@@ -7,7 +7,7 @@
 ## Файлы проекта
 
 1. **[punkt_vydachi_zakazov.py](file:///g:/code/ozonPunktVydachi/punkt_vydachi_zakazov.py)** - Основная программа имитационной модели на русском языке
-2. **[визуализация_результатов.py](file:///g:/code/ozonPunktVydachi/визуализация_результатов.py)** - Визуализация результатов моделирования
+2. **[enhanced_visualization.py](file:///g:/code/ozonPunktVydachi/enhanced_visualization.py)** - Визуализация результатов моделирования
 3. **[документация_проекта.md](file:///g:/code/ozonPunktVydachi/документация_проекта.md)** - Полная документация проекта на русском языке
 4. **[requirements.txt](file:///g:/code/ozonPunktVydachi/requirements.txt)** - Зависимости проекта
 5. **результаты_имитации_русский.png** - Графики результатов имитации
@@ -28,7 +28,7 @@ python punkt_vydachi_zakazov.py
 ## Генерация визуализаций
 
 ```bash
-python визуализация_результатов.py
+python enhanced_visualization.py
 ```
 
 ## Основные результаты
